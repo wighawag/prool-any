@@ -1,6 +1,6 @@
 {
   "name": "prool-any",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "prool support for any command",
   "type": "module",
   "main": "./dist/index.js",

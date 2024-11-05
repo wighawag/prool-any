@@ -8,6 +8,7 @@ const stripAnsi = (str: string) => str.replace(/\x1B[[(?);]{0,2}(;?\d)*./g, "");
 type CommandParameters = {
   /* command to use to launch*/
   command: string;
+  readyMessage: string;
   redirectToFile?: string;
   onReadyCommands?: string[];
   onStopCommands?: string[];
@@ -25,6 +26,7 @@ export const instance = defineInstance((parameters: Parameters) => {
     onStopCommands,
     commandLog,
     portArgumentName = "port",
+    readyMessage,
     ...args
   } = parameters || { command: "echo" };
 
@@ -52,23 +54,23 @@ export const instance = defineInstance((parameters: Parameters) => {
     port: portProvided,
     async start({ port = portProvided }, options) {
       portAssigned = port;
-      const [actualBinary, ...moreArgs] = command.split(" ");
+      const [actualCommand, ...moreArgs] = command.split(" ");
       const argsList = toArgs({ ...args, port }).map((v) =>
         v.replaceAll("{PORT}", portAssigned.toString())
       );
       const commandArgs = moreArgs.concat(argsList);
 
       if (commandLog) {
-        console.log(`EXECUTING: ${actualBinary} ${commandArgs.join(" ")}`);
+        console.log(`EXECUTING: ${actualCommand} ${commandArgs.join(" ")}`);
       }
-      return await process.start(($) => $`${actualBinary} ${commandArgs}`, {
+      return await process.start(($) => $`${actualCommand} ${commandArgs}`, {
         ...options,
         // Resolve when the process is listening via a "Listening on" message.
         resolver({ process, reject, resolve }) {
           process.stdout.on("data", async (data: any) => {
             // console.log(`DATA ${data.toString()}`);
             const message = stripAnsi(data.toString());
-            if (message.includes("Ready on")) {
+            if (message.includes(readyMessage)) {
               if (commandLog) {
                 console.log("Ready");
               }
