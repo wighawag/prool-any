@@ -6,7 +6,7 @@ import { execa } from "execa";
 const stripAnsi = (str: string) => str.replace(/\x1B[[(?);]{0,2}(;?\d)*./g, "");
 
 type CommandParameters = {
-  /* command to use to launch, default to `wrangler dev` */
+  /* command to use to launch*/
   command: string;
   redirectToFile?: string;
   onReadyCommands?: string[];
